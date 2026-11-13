@@ -9434,6 +9434,10 @@
               },
               {
                 "type": "SYMBOL",
+                "name": "escape_sequence"
+              },
+              {
+                "type": "SYMBOL",
                 "name": "template_type"
               }
             ]
