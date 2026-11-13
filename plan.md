@@ -208,7 +208,7 @@ The consuming project's patch, artifact-loading code, and affected real files re
 ## Next: drive fixes with the tsc oracle harness
 
 Added November 14, 2026.
-The harness is on branch `oracle-harness` (worktree `.worktrees/oracle`, commits `8d23205`, `987e33c`), in `oracle/`. It is not pushed.
+The harness is on branch `oracle-harness` (worktree `.worktrees/oracle`, commits `8d23205`, `987e33c`), in `oracle/`. It is pushed to `fork`.
 It compares the grammar against the typescript@6.0.3 parser over `tests/cases` from microsoft/TypeScript v6.0.3, which is 14,896 units and runs in about 3 seconds.
 Usage: `node oracle/run.ts fetch`, `node oracle/run.ts run --grammar <worktree> --out <file>`, `node oracle/run.ts diff <before> <after>`. `diff` exits 1 on any regression.
 
