@@ -215,8 +215,10 @@ Usage: `node oracle/run.ts fetch`, `node oracle/run.ts run --grammar <worktree> 
 Baseline: master has 237 grammar-rejects, and `integration` at `f4192b7` has 220. Integration fixes 17 units with 0 regressions.
 
 - [x] Merge `oracle-harness` into `integration`. Done November 14, 2026, as 7a936c8 (pushed). The baseline for the next `diff` is `.worktrees/integration/oracle/out/integration.jsonl` (220 rejects; 17 fixes, 0 regressions against master).
+Merge recipe: `parser.c` always conflicts, so take either side, regenerate with `verify-worktree.cjs`, then run the harness before committing. Run the harness from `.worktrees/integration/oracle` with `ORACLE_CACHE=../../oracle/oracle/.cache` to reuse the fetched corpus.
+
 - [ ] Import existing upstream PRs into fix branches, one at a time, and merge each into `integration` only when `diff` shows 0 regressions:
-  - `export type *` (15 units): #358 or #360.
+  - [x] `export type *` (15 units): took #358 over #360 (same language, one `choice` instead of two duplicated rules, more tests). Branch `fix-export-type-star` is the unchanged #358 head `8a43a91`; CLI 0.24.4 regenerates it with no changes, and its test commit fails before the fix. Merged as `90c124a` (pushed): integration 220 to 205 rejects, 15 fixes, 0 regressions.
   - `accessor` (about 25 units): #381.
   - Import attributes on re-exports (6 units): find the matching pending PR.
 - [ ] Contextual keywords as names, using tree-sitter 0.25 `reserved`, starting from #357 (the javascript 0.25 bump). Clusters: `export { type }` (34), `await` parameter (12), `accessor`, `abstract`. Measure the reject count before and after.
