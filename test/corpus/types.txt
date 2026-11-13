@@ -1867,6 +1867,50 @@ type StringToNumber<S extends string> = S extends `${infer N extends number}` ? 
       (predefined_type))))
 
 ==================================
+Escapes in template literal types
+==================================
+
+type Backtick = `hello \`world\``;
+type Backslash = `a\\b`;
+type Interpolation = `\${notAnInterpolation}`;
+type Substitution<T extends string> = `\`${T}\\${T}\``;
+
+---
+
+(program
+  (type_alias_declaration
+    (type_identifier)
+    (template_literal_type
+      (string_fragment)
+      (escape_sequence)
+      (string_fragment)
+      (escape_sequence)))
+  (type_alias_declaration
+    (type_identifier)
+    (template_literal_type
+      (string_fragment)
+      (escape_sequence)
+      (string_fragment)))
+  (type_alias_declaration
+    (type_identifier)
+    (template_literal_type
+      (escape_sequence)
+      (string_fragment)))
+  (type_alias_declaration
+    (type_identifier)
+    (type_parameters
+      (type_parameter
+        (type_identifier)
+        (constraint
+          (predefined_type))))
+    (template_literal_type
+      (escape_sequence)
+      (template_type (type_identifier))
+      (escape_sequence)
+      (template_type (type_identifier))
+      (escape_sequence))))
+
+==================================
 Mapped type 'as' clauses
 ==================================
 
