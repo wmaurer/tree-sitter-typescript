@@ -39,6 +39,8 @@ Verdicts:
 - `grammar-accepts`: TypeScript's parser reports an error and tree-sitter does not.
 - `agree-error`: both report an error.
 
+TypeScript's parser accepts some invalid syntax and reports it from the type checker instead, for example `export` on a class member or an empty `var`. When tree-sitter rejects a unit that the parser accepts, the harness also runs the checker. If the checker reports a syntax error inside the code that tree-sitter rejects, the verdict is `agree-error`. The list of checker codes that count as syntax errors is in `judge.ts`.
+
 `summary.md` groups `grammar-rejects` by the signature of the first tree-sitter error, `<ERROR|MISSING>:<parent node type>:<first token>`, and lists the 40 largest groups with a sample.
 
 ## Compare two grammar builds

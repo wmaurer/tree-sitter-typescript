@@ -110,7 +110,7 @@ function run(args: string[]): void {
   const total = VERDICT_KINDS.reduce((n, k) => n + counts[k], 0);
   const header = [
     `grammar: ${grammar} @ ${grammarVersion(grammar)}`,
-    `oracle: typescript ${ts.version} parseDiagnostics`,
+    `oracle: typescript ${ts.version} parseDiagnostics, plus checker grammar diagnostics inside each grammar-rejects reduction`,
     `corpus: microsoft/TypeScript ${TS_TAG} (${TS_SHA}) tests/cases/{conformance,compiler}${flags.filter === undefined ? '' : `, filter \`${flags.filter}\``}`,
     `units: ${total}, run time ${seconds}s`,
   ];

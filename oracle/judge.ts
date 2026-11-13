@@ -105,6 +105,42 @@ function tscParse(fileName: string, dialect: Dialect, text: string): { sf: ts.So
   return { sf, diagnostics: parsed.map(formatDiagnostic) };
 }
 
+// TypeScript's parser accepts more than the language allows and leaves many
+// syntax rules (modifier placement, empty declaration lists, reserved words,
+// assignment targets) to the checker. Those diagnostics mostly use codes
+// 1000-1999 and 17000-17999; NOT_GRAMMAR are type-level checks in that range,
+// EXTRA_GRAMMAR are syntax rules reported under other codes.
+const NOT_GRAMMAR = new Set([1166, 1168, 1169, 1170, 1238, 1239, 1240, 1241, 1268, 1270, 1271, 1330, 1331, 1332, 1333, 1334, 1335, 1337, 1361, 1362]);
+const EXTRA_GRAMMAR = new Set([2364, 2404, 2406, 2483, 2487, 2499, 2500, 2501, 2566, 2701, 18006, 18010, 18016, 18019, 18058, 18059, 18061, 8020]);
+
+function isGrammarCode(code: number): boolean {
+  if (EXTRA_GRAMMAR.has(code)) return true;
+  return ((code >= 1000 && code < 2000) || (code >= 17000 && code < 18000)) && !NOT_GRAMMAR.has(code);
+}
+
+// Options chosen to switch off option-dependent errors such as TS1202
+// (import assignment under ES modules); noLib keeps a check under a millisecond.
+const CHECKER_OPTIONS: ts.CompilerOptions = {
+  noLib: true,
+  noResolve: true,
+  types: [],
+  target: ts.ScriptTarget.ESNext,
+  module: ts.ModuleKind.Preserve,
+  jsx: ts.JsxEmit.Preserve,
+};
+
+function checkerGrammarDiagnostics(fileName: string, dialect: Dialect, text: string, span: { start: number; end: number }): string[] {
+  const root = `/${fileName.split('/').pop()}`;
+  const host = ts.createCompilerHost(CHECKER_OPTIONS);
+  host.fileExists = (f) => f === root;
+  host.getSourceFile = (f) => (f === root ? createSourceFile(root, dialect, text) : undefined);
+  const program = ts.createProgram([root], CHECKER_OPTIONS, host);
+  return program
+    .getSemanticDiagnostics(program.getSourceFile(root))
+    .filter((d) => isGrammarCode(d.code) && d.start !== undefined && span.start <= d.start && d.start <= span.end)
+    .map(formatDiagnostic);
+}
+
 function childList(node: ts.Node): ts.NodeArray<ts.Node> | undefined {
   if (ts.isClassDeclaration(node) || ts.isInterfaceDeclaration(node) || ts.isEnumDeclaration(node)) return node.members;
   if (ts.isModuleDeclaration(node) && node.body && ts.isModuleBlock(node.body)) return node.body.statements;
@@ -156,6 +192,10 @@ export function makeJudge(grammarRoot: string): Judge {
     if (diagnostics.length > 0 && errors.length === 0) return { kind: 'grammar-accepts', diagnostics: diagnostics.slice(0, MAX_LISTED) };
     if (diagnostics.length > 0) return { kind: 'agree-error', diagnostics: diagnostics.slice(0, MAX_LISTED), errors: errors.slice(0, MAX_LISTED) };
     const reduction = minimize(fileName, unit.dialect, sf, firstIndex);
+    // The whole unit is checked, for module and strict-mode context, but only
+    // complaints inside the code tree-sitter rejects count.
+    const grammar = checkerGrammarDiagnostics(fileName, unit.dialect, unit.text, reduction ?? { start: 0, end: unit.text.length });
+    if (grammar.length > 0) return { kind: 'agree-error', diagnostics: grammar.slice(0, MAX_LISTED), errors: errors.slice(0, MAX_LISTED) };
     return { kind: 'grammar-rejects', errors: errors.slice(0, MAX_LISTED), ...(reduction === undefined ? {} : { minimized: reduction.text }) };
   };
 }
