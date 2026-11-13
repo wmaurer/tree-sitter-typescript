@@ -1,4 +1,215 @@
 =======================================
+Newline-separated generic call signatures
+=======================================
+
+type A = {
+  <T>(o: number): E
+  <T>(o: number): E
+}
+
+---
+
+(program
+  (type_alias_declaration
+    (type_identifier)
+    (object_type
+      (call_signature
+        (type_parameters
+          (type_parameter
+            (type_identifier)))
+        (formal_parameters
+          (required_parameter
+            (identifier)
+            (type_annotation
+              (predefined_type))))
+        (type_annotation
+          (type_identifier)))
+      (call_signature
+        (type_parameters
+          (type_parameter
+            (type_identifier)))
+        (formal_parameters
+          (required_parameter
+            (identifier)
+            (type_annotation
+              (predefined_type))))
+        (type_annotation
+          (type_identifier))))))
+
+=======================================
+Consecutive generic interface call signatures
+=======================================
+
+interface A {
+  <T>(): E<T>
+  <U>(): E.F
+  <V>(): E
+}
+
+---
+
+(program
+  (interface_declaration
+    (type_identifier)
+    (interface_body
+      (call_signature
+        (type_parameters
+          (type_parameter
+            (type_identifier)))
+        (formal_parameters)
+        (type_annotation
+          (generic_type
+            (type_identifier)
+            (type_arguments
+              (type_identifier)))))
+      (call_signature
+        (type_parameters
+          (type_parameter
+            (type_identifier)))
+        (formal_parameters)
+        (type_annotation
+          (nested_type_identifier
+            (identifier)
+            (type_identifier))))
+      (call_signature
+        (type_parameters
+          (type_parameter
+            (type_identifier)))
+        (formal_parameters)
+        (type_annotation
+          (type_identifier))))))
+
+=======================================
+Generic call signature separators and comments
+=======================================
+
+type A = {
+  <T>(): E
+  // Next signature.
+  <U>(): E
+  /* Next signature. */ <V>(): E;
+  <W>(): E,
+  <X>(): E
+}
+
+---
+
+(program
+  (type_alias_declaration
+    (type_identifier)
+    (object_type
+      (call_signature
+        (type_parameters
+          (type_parameter
+            (type_identifier)))
+        (formal_parameters)
+        (type_annotation
+          (type_identifier)))
+      (comment)
+      (call_signature
+        (type_parameters
+          (type_parameter
+            (type_identifier)))
+        (formal_parameters)
+        (type_annotation
+          (type_identifier)))
+      (comment)
+      (call_signature
+        (type_parameters
+          (type_parameter
+            (type_identifier)))
+        (formal_parameters)
+        (type_annotation
+          (type_identifier)))
+      (call_signature
+        (type_parameters
+          (type_parameter
+            (type_identifier)))
+        (formal_parameters)
+        (type_annotation
+          (type_identifier)))
+      (call_signature
+        (type_parameters
+          (type_parameter
+            (type_identifier)))
+        (formal_parameters)
+        (type_annotation
+          (type_identifier))))))
+
+=======================================
+Multiline generic types and calls
+=======================================
+
+type A = E<
+  T
+>;
+type B = E
+  .F<T>;
+type C = E /* Type arguments. */ <T>;
+f
+  <T>(x);
+f<
+  T
+>(x);
+a
+  < b;
+a
+  <= b;
+a
+  << b;
+
+---
+
+(program
+  (type_alias_declaration
+    (type_identifier)
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier))))
+  (type_alias_declaration
+    (type_identifier)
+    (generic_type
+      (nested_type_identifier
+        (identifier)
+        (type_identifier))
+      (type_arguments
+        (type_identifier))))
+  (type_alias_declaration
+    (type_identifier)
+    (generic_type
+      (type_identifier)
+      (comment)
+      (type_arguments
+        (type_identifier))))
+  (expression_statement
+    (call_expression
+      (identifier)
+      (type_arguments
+        (type_identifier))
+      (arguments
+        (identifier))))
+  (expression_statement
+    (call_expression
+      (identifier)
+      (type_arguments
+        (type_identifier))
+      (arguments
+        (identifier))))
+  (expression_statement
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (expression_statement
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (expression_statement
+    (binary_expression
+      (identifier)
+      (identifier))))
+
+=======================================
 Built-in types
 =======================================
 
