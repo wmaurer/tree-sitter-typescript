@@ -1117,6 +1117,69 @@ class D<const in T> { m(x: T) {} }
         body: (statement_block)))))
 
 =======================================
+Variance parameter names and const modifier ordering
+=======================================
+
+interface X<out> {}
+interface X<out = string> {}
+interface X<in out> {}
+interface X<out out> {}
+class X<const in out T> {}
+class X<in const out T> {}
+class X<in out const T> {}
+class X<out const T> {}
+class X<in const T> {}
+
+---
+
+(program
+  (interface_declaration
+    (type_identifier)
+    (type_parameters
+      (type_parameter (type_identifier)))
+    (interface_body))
+  (interface_declaration
+    (type_identifier)
+    (type_parameters
+      (type_parameter (type_identifier) (default_type (predefined_type))))
+    (interface_body))
+  (interface_declaration
+    (type_identifier)
+    (type_parameters
+      (type_parameter (type_identifier)))
+    (interface_body))
+  (interface_declaration
+    (type_identifier)
+    (type_parameters
+      (type_parameter (type_identifier)))
+    (interface_body))
+  (class_declaration
+    (type_identifier)
+    (type_parameters
+      (type_parameter (type_identifier)))
+    (class_body))
+  (class_declaration
+    (type_identifier)
+    (type_parameters
+      (type_parameter (type_identifier)))
+    (class_body))
+  (class_declaration
+    (type_identifier)
+    (type_parameters
+      (type_parameter (type_identifier)))
+    (class_body))
+  (class_declaration
+    (type_identifier)
+    (type_parameters
+      (type_parameter (type_identifier)))
+    (class_body))
+  (class_declaration
+    (type_identifier)
+    (type_parameters
+      (type_parameter (type_identifier)))
+    (class_body)))
+
+=======================================
 Flow type parameter constraint syntax
 =======================================
 
