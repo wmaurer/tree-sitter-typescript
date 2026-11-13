@@ -214,7 +214,7 @@ Usage: `node oracle/run.ts fetch`, `node oracle/run.ts run --grammar <worktree> 
 
 Baseline: master has 237 grammar-rejects, and `integration` at `f4192b7` has 220. Integration fixes 17 units with 0 regressions.
 
-- [ ] Merge `oracle-harness` into `integration`. (Pushed to `fork` November 14, 2026.)
+- [x] Merge `oracle-harness` into `integration`. Done November 14, 2026, as 7a936c8 (pushed). The baseline for the next `diff` is `.worktrees/integration/oracle/out/integration.jsonl` (220 rejects; 17 fixes, 0 regressions against master).
 - [ ] Import existing upstream PRs into fix branches, one at a time, and merge each into `integration` only when `diff` shows 0 regressions:
   - `export type *` (15 units): #358 or #360.
   - `accessor` (about 25 units): #381.
