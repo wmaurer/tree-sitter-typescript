@@ -18,6 +18,20 @@ require("tree-sitter-typescript").tsx; // TSX grammar
 
 For Javascript files with [flow] type annotations you can use the `tsx` parser.
 
+## Fork status
+
+This branch of [wmaurer/tree-sitter-typescript](https://github.com/wmaurer/tree-sitter-typescript/tree/integration) collects fixes that are pending in [tree-sitter/tree-sitter-typescript](https://github.com/tree-sitter/tree-sitter-typescript). The aim is to merge them back upstream. Each fix is on its own branch based on upstream `master`. Upstream PRs are imported unchanged, with their authors' commits.
+
+| Fix | Upstream | Branch |
+| --- | --- | --- |
+| Variance annotations on type parameters (`in`, `out`, `in out`) | [#364](https://github.com/tree-sitter/tree-sitter-typescript/pull/364), plus a repair for `out` as a parameter name and `const` modifier order. Same feature as [#361](https://github.com/tree-sitter/tree-sitter-typescript/pull/361). Issue [#370](https://github.com/tree-sitter/tree-sitter-typescript/issues/370). | `fix-variance-annotations` |
+| Escaped backticks in template literal types | New fix, no upstream issue. | `fix-escaped-template-literal-types` |
+| Generic call signatures separated only by a line break | New fix. Issue [#335](https://github.com/tree-sitter/tree-sitter-typescript/issues/335). | `fix-newline-generic-call-signatures` |
+| `export type *` and `export type * as Ns` | [#358](https://github.com/tree-sitter/tree-sitter-typescript/pull/358). Same feature as [#360](https://github.com/tree-sitter/tree-sitter-typescript/pull/360). Issue [#348](https://github.com/tree-sitter/tree-sitter-typescript/issues/348). | `fix-export-type-star` |
+| `accessor` with `static`, `override` and `abstract`, and `accessor` as a member name | [#381](https://github.com/tree-sitter/tree-sitter-typescript/pull/381). Issue [#369](https://github.com/tree-sitter/tree-sitter-typescript/issues/369). | `fix-accessor-modifier` |
+
+Each fix is checked with the harness in [`oracle/`](oracle/README.md), which compares the grammar with TypeScript 6.0.3's parser over TypeScript's own test suite (14,896 files). On that suite, upstream `master` rejects 237 files that TypeScript accepts, and this branch rejects 175. No fix made the grammar reject a file it accepted before.
+
 [tree-sitter]: https://github.com/tree-sitter/tree-sitter
 [flow]: https://flow.org/en/
 
