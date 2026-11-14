@@ -170,6 +170,39 @@ type Foo = {
           (predefined_type))))))
 
 ====================================================
+Static index signatures
+====================================================
+
+class C {
+  static [x: string]: string;
+  static readonly [s: symbol]: number;
+}
+
+interface I { static [k: string]: number }
+
+---
+
+(program
+  (class_declaration
+    name: (type_identifier)
+    body: (class_body
+      (index_signature
+        name: (identifier)
+        index_type: (predefined_type)
+        type: (type_annotation (predefined_type)))
+      (index_signature
+        name: (identifier)
+        index_type: (predefined_type)
+        type: (type_annotation (predefined_type)))))
+  (interface_declaration
+    name: (type_identifier)
+    body: (interface_body
+      (index_signature
+        name: (identifier)
+        index_type: (predefined_type)
+        type: (type_annotation (predefined_type))))))
+
+====================================================
 Object types with automatic semicolon insertion
 ====================================================
 
