@@ -445,6 +445,44 @@ module M {
           (identifier))))))
 
 ==================================
+Export import require
+==================================
+
+import a = require("a");
+export import b = require("b");
+export import type c = require('./c')
+declare module "m" {
+    export import d = require("d");
+}
+
+---
+
+(program
+  (import_statement
+    (import_require_clause
+      (identifier)
+      source: (string (string_fragment))))
+  (export_statement
+    (import_statement
+      (import_require_clause
+        (identifier)
+        source: (string (string_fragment)))))
+  (export_statement
+    (import_statement
+      (import_require_clause
+        (identifier)
+        source: (string (string_fragment)))))
+  (ambient_declaration
+    (module
+      name: (string (string_fragment))
+      body: (statement_block
+        (export_statement
+          (import_statement
+            (import_require_clause
+              (identifier)
+              source: (string (string_fragment)))))))))
+
+==================================
 Property signatures with accessibility modifiers
 ==================================
 
