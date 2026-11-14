@@ -1757,3 +1757,55 @@ var v = { [await]: foo };
           (computed_property_name
             (identifier))
           (identifier))))))
+
+==================================
+Of as a definitely assigned variable name
+==================================
+
+let of!: number;
+
+---
+
+(program
+  (lexical_declaration
+    (variable_declarator
+      (identifier)
+      (type_annotation
+        (predefined_type)))))
+
+==================================
+Of as a using declaration name in a for loop
+==================================
+
+for (using of = f(); ;) { }
+
+---
+
+(program
+  (for_statement
+    (using_declaration
+      (variable_declarator
+        (identifier)
+        (call_expression
+          (identifier)
+          (arguments))))
+    (empty_statement)
+    (statement_block)))
+
+==================================
+Of as an await using name in a for-of loop
+==================================
+
+async function f() { for (await using of of []) { } }
+
+---
+
+(program
+  (function_declaration
+    (identifier)
+    (formal_parameters)
+    (statement_block
+      (for_in_statement
+        (identifier)
+        (array)
+        (statement_block)))))
