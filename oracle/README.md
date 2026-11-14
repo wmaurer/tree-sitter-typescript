@@ -55,4 +55,6 @@ node oracle/run.ts run --out oracle/out/after/results.jsonl
 node oracle/run.ts diff oracle/out/before/results.jsonl oracle/out/after/results.jsonl
 ```
 
-`diff` lists regressions (units that became `grammar-rejects`), fixes (units that stopped being `grammar-rejects`), and units that are in only one file. It exits with 1 if there is a regression, and 0 otherwise.
+`diff` lists regressions (units that became `grammar-rejects` or `grammar-accepts`), fixes (units that stopped being either), and units that are in only one file. It exits with 1 if there is a regression, and 0 otherwise.
+
+It also lists units that went from `agree-error` to `agree-clean`. TypeScript's parser accepts these, its checker rejects them with a syntax error, and tree-sitter now accepts them. They do not count as regressions, because the grammar builds a syntax tree and does not enforce checker rules such as decorator placement. Review them to make sure each one is a checker-only rule.

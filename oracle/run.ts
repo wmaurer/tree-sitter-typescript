@@ -136,13 +136,17 @@ function diff(args: string[]): void {
   const [before, after] = args.map(readResults);
   const regressions: string[] = [];
   const fixes: string[] = [];
+  const checkerOnly: string[] = [];
+  const disagrees = (kind: VerdictKind) => kind === 'grammar-rejects' || kind === 'grammar-accepts';
   for (const [id, b] of before) {
     const a = after.get(id);
     if (a === undefined) continue;
-    const wasRejected = b.verdict.kind === 'grammar-rejects';
-    const isRejected = a.verdict.kind === 'grammar-rejects';
-    if (!wasRejected && isRejected) regressions.push(`${id} (${b.verdict.kind} -> grammar-rejects)`);
-    if (wasRejected && !isRejected) fixes.push(`${id} (grammar-rejects -> ${a.verdict.kind})`);
+    const change = `${id} (${b.verdict.kind} -> ${a.verdict.kind})`;
+    if (!disagrees(b.verdict.kind) && disagrees(a.verdict.kind)) regressions.push(change);
+    if (disagrees(b.verdict.kind) && !disagrees(a.verdict.kind)) fixes.push(change);
+    // The checker only runs when tree-sitter rejects, so a unit that only the
+    // checker rejects reads as agree-clean once tree-sitter accepts it.
+    if (b.verdict.kind === 'agree-error' && a.verdict.kind === 'agree-clean') checkerOnly.push(change);
   }
   const onlyBefore = [...before.keys()].filter((id) => !after.has(id));
   const onlyAfter = [...after.keys()].filter((id) => !before.has(id));
@@ -152,6 +156,7 @@ function diff(args: string[]): void {
   };
   section('regressions', regressions);
   section('fixes', fixes);
+  section('now accepted, rejected only by the checker', checkerOnly);
   section(`only in ${args[0]}`, onlyBefore);
   section(`only in ${args[1]}`, onlyAfter);
   process.exit(regressions.length > 0 ? 1 : 0);
