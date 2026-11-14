@@ -351,7 +351,7 @@ module.exports = function defineGrammar(dialect) {
           optional($._initializer),
         ),
         prec('declaration', seq(
-          field('name', $.identifier),
+          field('name', choice($.identifier, alias('of', $.identifier))),
           '!',
           field('type', $.type_annotation),
         )),
@@ -367,7 +367,7 @@ module.exports = function defineGrammar(dialect) {
       ),
 
       _using_declarator: $ => seq(
-        field('name', $.identifier),
+        field('name', choice($.identifier, alias('of', $.identifier))),
         field('type', optional($.type_annotation)),
         optional($._initializer),
       ),
@@ -389,7 +389,8 @@ module.exports = function defineGrammar(dialect) {
         field('body', $.statement),
       ),
 
-      // `using of` never starts a declaration in a for-in/of header.
+      // `using of` never starts a declaration in a for-in/of header, but
+      // `await using of` does.
       _for_header: $ => seq(
         '(',
         choice(
@@ -416,12 +417,18 @@ module.exports = function defineGrammar(dialect) {
             optional($._automatic_semicolon),
           ),
           seq(
-            field('kind', choice(
-              'using',
-              seq('await', 'using'),
-            )),
+            field('kind', 'using'),
             field('left', choice(
               $.identifier,
+              $._destructuring_pattern,
+            )),
+            optional($._automatic_semicolon),
+          ),
+          seq(
+            field('kind', seq('await', 'using')),
+            field('left', choice(
+              $.identifier,
+              alias('of', $.identifier),
               $._destructuring_pattern,
             )),
             optional($._automatic_semicolon),
