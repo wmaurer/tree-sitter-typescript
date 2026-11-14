@@ -2214,3 +2214,132 @@ import something from 'foo.css' assert { type: 'css' }
           (property_identifier)
           (string
             (string_fragment)))))))
+
+==================================
+Reserved words in type references
+==================================
+
+var v: x.void;
+declare const a: Q4.default.A;
+let g: A.default<string>;
+interface I extends A.default {}
+function f(x: break): x is A.default { return true; }
+
+---
+
+(program
+  (variable_declaration
+    (variable_declarator
+      (identifier)
+      (type_annotation
+        (nested_type_identifier
+          (identifier)
+          (type_identifier)))))
+  (ambient_declaration
+    (lexical_declaration
+      (variable_declarator
+        (identifier)
+        (type_annotation
+          (nested_type_identifier
+            (nested_identifier
+              (identifier)
+              (property_identifier))
+            (type_identifier))))))
+  (lexical_declaration
+    (variable_declarator
+      (identifier)
+      (type_annotation
+        (generic_type
+          (nested_type_identifier
+            (identifier)
+            (type_identifier))
+          (type_arguments
+            (predefined_type))))))
+  (interface_declaration
+    (type_identifier)
+    (extends_type_clause
+      (nested_type_identifier
+        (identifier)
+        (type_identifier)))
+    (interface_body))
+  (function_declaration
+    (identifier)
+    (formal_parameters
+      (required_parameter
+        (identifier)
+        (type_annotation
+          (type_identifier))))
+    (type_predicate_annotation
+      (type_predicate
+        (identifier)
+        (nested_type_identifier
+          (identifier)
+          (type_identifier))))
+    (statement_block
+      (return_statement
+        (true)))))
+
+==================================
+Reserved words in type queries
+==================================
+
+interface IScope {
+  delete: typeof Controller.prototype.delete;
+}
+let t: typeof this.this;
+type X = typeof default;
+let a: typeof import("m").default;
+let b: import("m").x.default;
+
+---
+
+(program
+  (interface_declaration
+    (type_identifier)
+    (interface_body
+      (property_signature
+        (property_identifier)
+        (type_annotation
+          (type_query
+            (member_expression
+              (member_expression
+                (identifier)
+                (property_identifier))
+              (property_identifier)))))))
+  (lexical_declaration
+    (variable_declarator
+      (identifier)
+      (type_annotation
+        (type_query
+          (member_expression
+            (this)
+            (property_identifier))))))
+  (type_alias_declaration
+    (type_identifier)
+    (type_query
+      (identifier)))
+  (lexical_declaration
+    (variable_declarator
+      (identifier)
+      (type_annotation
+        (type_query
+          (member_expression
+            (call_expression
+              (import)
+              (arguments
+                (string
+                  (string_fragment))))
+            (property_identifier))))))
+  (lexical_declaration
+    (variable_declarator
+      (identifier)
+      (type_annotation
+        (member_expression
+          (member_expression
+            (call_expression
+              (import)
+              (arguments
+                (string
+                  (string_fragment))))
+            (property_identifier))
+          (property_identifier))))))
