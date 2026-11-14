@@ -1,0 +1,129 @@
+=== qualified-type-void
+var v: x.void;
+=== qualified-type-false
+const x: Bool.false = Bool.false;
+=== nested-type-default
+declare const try4: Q4.default.A;
+=== typeof-member-delete
+interface IScope {
+  delete: typeof Controller.prototype.delete;
+}
+=== typeof-this-this
+var str: typeof this.this;
+=== typeof-default
+export type X = typeof default;
+=== export-alias-while
+export { x as while };
+=== export-alias-try-namespace
+declare namespace Q {
+  export { _try as try };
+}
+=== export-name-reserved-reexport
+export { while, default as class } from "m";
+=== import-name-reserved
+import { while as w, default as d } from "m";
+=== param-type-break
+class Foo {
+  banana(x: break) { }
+}
+=== namespace-import-alias-reserved invalid
+import A = B.while;
+=== extends-qualified-reserved
+interface I extends A.default {}
+class C implements A.class {}
+=== typeof-import-member
+let a: typeof import("m").default;
+=== jsx-attr-var tsx
+<test1 var="10" />;
+=== jsx-this-member tsx
+<this._tagName />;
+=== jsx-this tsx
+<this />;
+=== jsx-this-member-children tsx
+<this._tagName> Hello </this._tagName>;
+=== jsx-attr-class tsx
+<foo class/>;
+=== jsx-attr-class-value tsx
+<input class="x" for="y" />;
+=== jsx-namespace-reserved tsx
+<svg:switch default:if="1" />;
+=== jsx-member-reserved tsx
+<a.default.new />;
+=== for-var-of
+for (var of; ;) { }
+=== for-let-of-in
+for (let of in x) { }
+=== for-using
+for (using d1 = a, d2 = null;;) { }
+=== for-await-using
+async function f() { for (await using d = a;;) { } }
+=== for-using-of-of invalid
+for (using of of []) { }
+=== using-identifier-assign
+using = 1;
+=== await-param
+function f(await) { }
+=== await-arrow-param
+var f = (await) => { };
+=== await-default
+function f(await = await) { }
+=== await-computed-key
+var v = { [await]: foo };
+=== for-using-of-identifier
+for (using of []) { }
+=== using-call
+using(x);
+=== using-member
+using.dispose();
+=== decorator-member-reserved
+class C { @x.default m() {} }
+=== enum-reserved-member
+enum E { while = 1, default }
+=== abstract-default-method
+abstract class C { abstract default(): void; get delete() { return 1; } }
+=== optional-chain-reserved
+a?.class;
+=== type-predicate-reserved
+function f(x): x is A.default { return true; }
+=== import-type-default
+import type { default as X } from "m";
+=== export-type-reserved
+export type { while } from "m";
+=== generic-qualified-reserved
+let g: A.default<string>;
+=== typeof-member-chain
+let t: typeof a.b.c.while;
+=== interface-reserved-name invalid
+interface while {}
+=== module-dotted-reserved checker
+declare module A.B.while {}
+=== type-alias-reserved invalid
+type while = string;
+=== type-param-reserved invalid
+function f<while>() {}
+=== class-reserved-name invalid
+class default {}
+=== using-subscript-assign
+using[0] = 1;
+=== using-decl-typed
+using x: Disposable = make(), y = null;
+=== await-using-decl
+async function f() { await using x = g(); }
+=== await-using-identifier
+async function f() { await using; }
+=== using-as-expression
+let a = using as any;
+=== using-destructuring invalid
+using { a } = b;
+=== using-declarations-statement
+{ using a = b; }
+=== for-using-in
+for (using in x) { }
+=== for-await-using-of
+async function f() { for await (await using x of y) { } }
+=== label-using
+using: for (;;) { break using; }
+=== import-type-member-reserved
+let a: import("m").default;
+=== import-type-member-chain-reserved
+let b: import("m").x.default;

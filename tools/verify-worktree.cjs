@@ -59,9 +59,13 @@ const lint = spawnSync('npm', ['run', 'lint'], { cwd: root, env, encoding: 'utf8
 if (lint.error) throw lint.error;
 const lintOutput = lint.stdout + lint.stderr;
 fs.writeFileSync(path.join(logs, `${label}-lint.log`), lintOutput);
-assert.equal(lint.status, 1, lintOutput);
-assert.match(lintOutput, /6 problems \(2 errors, 4 warnings\)/);
-assert.equal((lintOutput.match(/jsdoc\/tag-lines/g) || []).length, 2);
-assert.equal((lintOutput.match(/jsdoc\/check-tag-names/g) || []).length, 4);
-console.log('lint: baseline-only failure, 2 errors and 4 warnings');
+if (lint.status === 0) {
+  console.log('lint: clean');
+} else {
+  assert.equal(lint.status, 1, lintOutput);
+  assert.match(lintOutput, /6 problems \(2 errors, 4 warnings\)/);
+  assert.equal((lintOutput.match(/jsdoc\/tag-lines/g) || []).length, 2);
+  assert.equal((lintOutput.match(/jsdoc\/check-tag-names/g) || []).length, 4);
+  console.log('lint: baseline-only failure, 2 errors and 4 warnings');
+}
 run('whitespace', 'git', ['diff', '--check']);
