@@ -71,6 +71,7 @@ module.exports = function defineGrammar(dialect) {
     ]),
 
     conflicts: ($, previous) => previous.concat([
+      [$._using_declarator, $._for_header],
       [$.call_expression, $.instantiation_expression, $.binary_expression],
       [$.call_expression, $.instantiation_expression, $.binary_expression, $.unary_expression],
       [$.call_expression, $.instantiation_expression, $.binary_expression, $.update_expression],
@@ -206,7 +207,6 @@ module.exports = function defineGrammar(dialect) {
       )),
 
       assignment_expression: $ => prec.right('assign', seq(
-        optional('using'),
         field('left', choice($.parenthesized_expression, $._lhs_expression)),
         '=',
         field('right', $.expression),
@@ -278,6 +278,16 @@ module.exports = function defineGrammar(dialect) {
         $._jsx_start_opening_element,
         '/>',
       )),
+
+      _jsx_identifier: $ => reserved('properties', choice(
+        alias($.jsx_identifier, $.identifier),
+        $.identifier,
+      )),
+
+      _module_export_name: $ => choice(
+        reserved('properties', $.identifier),
+        $.string,
+      ),
 
       export_specifier: $ => {
         const name = choice($._module_export_name, alias('type', $.identifier), alias('as', $.identifier));
@@ -355,15 +365,97 @@ module.exports = function defineGrammar(dialect) {
 
       variable_declarator: $ => choice(
         seq(
-          field('name', choice($.identifier, $._destructuring_pattern)),
+          field('name', choice($.identifier, alias('of', $.identifier), $._destructuring_pattern)),
           field('type', optional($.type_annotation)),
           optional($._initializer),
         ),
         prec('declaration', seq(
-          field('name', $.identifier),
+          field('name', choice($.identifier, alias('of', $.identifier))),
           '!',
           field('type', $.type_annotation),
         )),
+      ),
+
+      using_declaration: $ => seq(
+        field('kind', choice(
+          'using',
+          seq('await', 'using'),
+        )),
+        commaSep1(alias($._using_declarator, $.variable_declarator)),
+        $._semicolon,
+      ),
+
+      _using_declarator: $ => seq(
+        field('name', choice($.identifier, alias('of', $.identifier))),
+        field('type', optional($.type_annotation)),
+        optional($._initializer),
+      ),
+
+      for_statement: $ => seq(
+        'for',
+        '(',
+        choice(
+          field('initializer', choice($.lexical_declaration, $.variable_declaration, $.using_declaration)),
+          seq(field('initializer', $._expressions), ';'),
+          field('initializer', $.empty_statement),
+        ),
+        field('condition', choice(
+          seq($._expressions, ';'),
+          $.empty_statement,
+        )),
+        field('increment', optional($._expressions)),
+        ')',
+        field('body', $.statement),
+      ),
+
+      // `using of` never starts a declaration in a for-in/of header, but
+      // `await using of` does.
+      _for_header: $ => seq(
+        '(',
+        choice(
+          field('left', choice(
+            $._lhs_expression,
+            $.parenthesized_expression,
+          )),
+          seq(
+            field('kind', 'var'),
+            field('left', choice(
+              $.identifier,
+              alias('of', $.identifier),
+              $._destructuring_pattern,
+            )),
+            optional($._initializer),
+          ),
+          seq(
+            field('kind', choice('let', 'const')),
+            field('left', choice(
+              $.identifier,
+              alias('of', $.identifier),
+              $._destructuring_pattern,
+            )),
+            optional($._automatic_semicolon),
+          ),
+          seq(
+            field('kind', 'using'),
+            field('left', choice(
+              $.identifier,
+              $._destructuring_pattern,
+            )),
+            optional($._automatic_semicolon),
+          ),
+          seq(
+            field('kind', seq('await', 'using')),
+            field('left', choice(
+              $.identifier,
+              alias('of', $.identifier),
+              $._destructuring_pattern,
+            )),
+            optional($._automatic_semicolon),
+          ),
+        ),
+        field('operator', choice('in', 'of')),
+        field('right', $._expressions),
+        ')',
       ),
 
       method_signature: $ => seq(
@@ -420,6 +512,15 @@ module.exports = function defineGrammar(dialect) {
         ),
       ),
 
+      decorator_member_expression: $ => prec('member', seq(
+        field('object', choice(
+          $.identifier,
+          alias($.decorator_member_expression, $.member_expression),
+        )),
+        '.',
+        field('property', reserved('properties', alias($.identifier, $.property_identifier))),
+      )),
+
       decorator_call_expression: $ => prec('call', seq(
         field('function', choice(
           $.identifier,
@@ -429,13 +530,11 @@ module.exports = function defineGrammar(dialect) {
         field('arguments', $.arguments),
       )),
 
+      // Simplified from upstream's restricted choices to allow any expression,
+      // supporting patterns like @(super.decorate) and complex decorator expressions.
       decorator_parenthesized_expression: $ => seq(
         '(',
-        choice(
-          $.identifier,
-          alias($.decorator_member_expression, $.member_expression),
-          alias($.decorator_call_expression, $.call_expression),
-        ),
+        $.expression,
         ')',
       ),
 
@@ -618,8 +717,14 @@ module.exports = function defineGrammar(dialect) {
         $._semicolon,
       ),
 
+      nested_identifier: $ => prec('member', seq(
+        field('object', choice($.identifier, alias($.nested_identifier, $.member_expression))),
+        '.',
+        field('property', reserved('properties', alias($.identifier, $.property_identifier))),
+      )),
+
       nested_type_identifier: $ => prec('member', seq(
-        field('module', choice($.identifier, $.nested_identifier)),
+        field('module', reserved('properties', choice($.identifier, $.nested_identifier))),
         '.',
         field('name', $._type_identifier),
       )),
@@ -726,7 +831,7 @@ module.exports = function defineGrammar(dialect) {
         '.',
         field('property', choice(
           $.private_property_identifier,
-          alias($.identifier, $.property_identifier),
+          reserved('properties', alias($.identifier, $.property_identifier)),
         )),
       ),
       _type_query_call_expression_in_type_annotation: $ => seq(
@@ -880,7 +985,7 @@ module.exports = function defineGrammar(dialect) {
         choice('.', '?.'),
         field('property', choice(
           $.private_property_identifier,
-          alias($.identifier, $.property_identifier),
+          reserved('properties', alias($.identifier, $.property_identifier)),
         )),
       ),
       _type_query_subscript_expression: $ => seq(
@@ -919,7 +1024,7 @@ module.exports = function defineGrammar(dialect) {
           alias($._type_query_member_expression, $.member_expression),
           alias($._type_query_call_expression, $.call_expression),
           alias($._type_query_instantiation_expression, $.instantiation_expression),
-          $.identifier,
+          reserved('properties', $.identifier),
           $.this,
         ),
       )),
@@ -1127,6 +1232,7 @@ module.exports = function defineGrammar(dialect) {
         'object',
         'new',
         'readonly',
+        'using',
         previous,
       ),
     },
@@ -1137,9 +1243,7 @@ module.exports = function defineGrammar(dialect) {
  * Creates a rule to match one or more of the rules separated by a comma
  *
  * @param {RuleOrLiteral} rule
- *
- * @return {SeqRule}
- *
+ * @returns {SeqRule}
  */
 function commaSep1(rule) {
   return sepBy1(',', rule);
@@ -1149,9 +1253,7 @@ function commaSep1(rule) {
  * Creates a rule to optionally match one or more of the rules separated by a comma
  *
  * @param {RuleOrLiteral} rule
- *
- * @return {SeqRule}
- *
+ * @returns {SeqRule}
  */
 function commaSep(rule) {
   return sepBy(',', rule);
@@ -1161,10 +1263,8 @@ function commaSep(rule) {
  * Creates a rule to optionally match one or more of the rules separated by a separator
  *
  * @param {RuleOrLiteral} sep
- *
  * @param {RuleOrLiteral} rule
- *
- * @return {ChoiceRule}
+ * @returns {ChoiceRule}
  */
 function sepBy(sep, rule) {
   return optional(sepBy1(sep, rule));
@@ -1174,10 +1274,8 @@ function sepBy(sep, rule) {
  * Creates a rule to match one or more of the rules separated by a separator
  *
  * @param {RuleOrLiteral} sep
- *
  * @param {RuleOrLiteral} rule
- *
- * @return {SeqRule}
+ * @returns {SeqRule}
  */
 function sepBy1(sep, rule) {
   return seq(rule, repeat(seq(sep, rule)));

@@ -424,3 +424,63 @@ a ? function(){ return true } : b;
           (return_statement
             (true))))
       (identifier))))
+
+==================================
+Reserved words in JSX names
+:language(tsx)
+==================================
+
+<test1 var="10" />;
+<this._tagName> Hello </this._tagName>;
+<this />;
+<foo class/>;
+<svg:switch default:if="1" />;
+<a.default.new />;
+
+---
+
+(program
+  (expression_statement
+    (jsx_self_closing_element
+      (identifier)
+      (jsx_attribute
+        (property_identifier)
+        (string
+          (string_fragment)))))
+  (expression_statement
+    (jsx_element
+      (jsx_opening_element
+        (member_expression
+          (identifier)
+          (property_identifier)))
+      (jsx_text)
+      (jsx_closing_element
+        (member_expression
+          (identifier)
+          (property_identifier)))))
+  (expression_statement
+    (jsx_self_closing_element
+      (identifier)))
+  (expression_statement
+    (jsx_self_closing_element
+      (identifier)
+      (jsx_attribute
+        (property_identifier))))
+  (expression_statement
+    (jsx_self_closing_element
+      (jsx_namespace_name
+        (identifier)
+        (identifier))
+      (jsx_attribute
+        (jsx_namespace_name
+          (identifier)
+          (identifier))
+        (string
+          (string_fragment)))))
+  (expression_statement
+    (jsx_self_closing_element
+      (member_expression
+        (member_expression
+          (identifier)
+          (property_identifier))
+        (property_identifier)))))

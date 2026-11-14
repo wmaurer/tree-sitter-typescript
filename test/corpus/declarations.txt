@@ -1245,7 +1245,7 @@ class C {
       (decorator
         (parenthesized_expression
           (member_expression
-            (identifier)
+            (super)
             (property_identifier))))
       (method_definition
         (property_identifier)
@@ -1628,3 +1628,343 @@ class F { get accessor() { return 1; } }
         (statement_block
           (return_statement
             (number)))))))
+
+=======================================
+Using declarations
+=======================================
+
+using file = getFile();
+await using resource = getResource();
+using x = a, y = b;
+
+---
+
+(program
+  (using_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (call_expression
+        function: (identifier)
+        arguments: (arguments))))
+  (using_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (call_expression
+        function: (identifier)
+        arguments: (arguments))))
+  (using_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (identifier))
+    (variable_declarator
+      name: (identifier)
+      value: (identifier))))
+
+=======================================
+Using declarations with type annotations
+=======================================
+
+using file: Disposable = getFile();
+await using resource: AsyncDisposable = getResource();
+
+---
+
+(program
+  (using_declaration
+    (variable_declarator
+      name: (identifier)
+      type: (type_annotation
+        (type_identifier))
+      value: (call_expression
+        function: (identifier)
+        arguments: (arguments))))
+  (using_declaration
+    (variable_declarator
+      name: (identifier)
+      type: (type_annotation
+        (type_identifier))
+      value: (call_expression
+        function: (identifier)
+        arguments: (arguments)))))
+
+=======================================
+Using declarations in for-of loops
+=======================================
+
+for (using item of items) {
+  process(item);
+}
+
+for await (await using resource of resources) {
+  consume(resource);
+}
+
+---
+
+(program
+  (for_in_statement
+    left: (identifier)
+    right: (identifier)
+    body: (statement_block
+      (expression_statement
+        (call_expression
+          function: (identifier)
+          arguments: (arguments
+            (identifier))))))
+  (for_in_statement
+    left: (identifier)
+    right: (identifier)
+    body: (statement_block
+      (expression_statement
+        (call_expression
+          function: (identifier)
+          arguments: (arguments
+            (identifier)))))))
+
+==============================================
+Reserved words in import and export specifiers
+==============================================
+
+export { x as while };
+export { while, default as class } from "m";
+import { while as w, default as d } from "m";
+
+---
+
+(program
+  (export_statement
+    (export_clause
+      (export_specifier
+        (identifier)
+        (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        (identifier))
+      (export_specifier
+        (identifier)
+        (identifier)))
+    (string
+      (string_fragment)))
+  (import_statement
+    (import_clause
+      (named_imports
+        (import_specifier
+          (identifier)
+          (identifier))
+        (import_specifier
+          (identifier)
+          (identifier))))
+    (string
+      (string_fragment))))
+
+==================================
+Reserved words in decorator names
+==================================
+
+class C { @x.default m() {} }
+
+---
+
+(program
+  (class_declaration
+    (type_identifier)
+    (class_body
+      (decorator
+        (member_expression
+          (identifier)
+          (property_identifier)))
+      (method_definition
+        (property_identifier)
+        (formal_parameters)
+        (statement_block)))))
+
+==================================
+Using declarations in for loops
+==================================
+
+for (using d1 = a, d2 = null;;) { }
+async function f() { for (await using d = a;;) { } }
+
+---
+
+(program
+  (for_statement
+    (using_declaration
+      (variable_declarator
+        (identifier)
+        (identifier))
+      (variable_declarator
+        (identifier)
+        (null)))
+    (empty_statement)
+    (statement_block))
+  (function_declaration
+    (identifier)
+    (formal_parameters)
+    (statement_block
+      (for_statement
+        (using_declaration
+          (variable_declarator
+            (identifier)
+            (identifier)))
+        (empty_statement)
+        (statement_block)))))
+
+==================================
+Using as an identifier
+==================================
+
+using = 1;
+using(x);
+using.dispose();
+using[0] = 1;
+for (using of []) { }
+let a = using as any;
+
+---
+
+(program
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (number)))
+  (expression_statement
+    (call_expression
+      (identifier)
+      (arguments
+        (identifier))))
+  (expression_statement
+    (call_expression
+      (member_expression
+        (identifier)
+        (property_identifier))
+      (arguments)))
+  (expression_statement
+    (assignment_expression
+      (subscript_expression
+        (identifier)
+        (number))
+      (number)))
+  (for_in_statement
+    (identifier)
+    (array)
+    (statement_block))
+  (lexical_declaration
+    (variable_declarator
+      (identifier)
+      (as_expression
+        (identifier)
+        (predefined_type)))))
+
+==================================
+Using of in a for-of header
+:error
+==================================
+
+for (using of of []) { }
+
+---
+
+==================================
+Of as a variable name in a for loop
+==================================
+
+for (var of; ;) { }
+
+---
+
+(program
+  (for_statement
+    (variable_declaration
+      (variable_declarator
+        (identifier)))
+    (empty_statement)
+    (statement_block)))
+
+==================================
+Await as an identifier outside async functions
+==================================
+
+function f(await = await) { }
+var g = (await) => { };
+var v = { [await]: foo };
+
+---
+
+(program
+  (function_declaration
+    (identifier)
+    (formal_parameters
+      (required_parameter
+        (identifier)
+        (identifier)))
+    (statement_block))
+  (variable_declaration
+    (variable_declarator
+      (identifier)
+      (arrow_function
+        (formal_parameters
+          (required_parameter
+            (identifier)))
+        (statement_block))))
+  (variable_declaration
+    (variable_declarator
+      (identifier)
+      (object
+        (pair
+          (computed_property_name
+            (identifier))
+          (identifier))))))
+
+==================================
+Of as a definitely assigned variable name
+==================================
+
+let of!: number;
+
+---
+
+(program
+  (lexical_declaration
+    (variable_declarator
+      (identifier)
+      (type_annotation
+        (predefined_type)))))
+
+==================================
+Of as a using declaration name in a for loop
+==================================
+
+for (using of = f(); ;) { }
+
+---
+
+(program
+  (for_statement
+    (using_declaration
+      (variable_declarator
+        (identifier)
+        (call_expression
+          (identifier)
+          (arguments))))
+    (empty_statement)
+    (statement_block)))
+
+==================================
+Of as an await using name in a for-of loop
+==================================
+
+async function f() { for (await using of of []) { } }
+
+---
+
+(program
+  (function_declaration
+    (identifier)
+    (formal_parameters)
+    (statement_block
+      (for_in_statement
+        (identifier)
+        (array)
+        (statement_block)))))
