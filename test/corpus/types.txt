@@ -585,6 +585,56 @@ export type { A, B, C as D } from 'mymodule';
       (string_fragment))))
 
 =======================================
+Export type as a name
+=======================================
+
+export { type }
+export { type as t }
+export { t as type }
+export { type type }
+export type { type } from './Button'
+export { type } from './Button'
+export { type T }
+
+---
+
+(program
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier)
+        alias: (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier)
+        alias: (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier)))
+    source: (string
+      (string_fragment)))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier)))
+    source: (string
+      (string_fragment)))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier)))))
+
+=======================================
 Flow Export Types
 =======================================
 
