@@ -2214,3 +2214,91 @@ import something from 'foo.css' assert { type: 'css' }
           (property_identifier)
           (string
             (string_fragment)))))))
+
+=========================
+Re-export attributes
+=========================
+
+export {} from './a' with {}
+export { a } from './a' with { type: "json" }
+export * from './a' with { type: "json" }
+export * as ns from './a' with { type: "json" }
+export type { I } from './a' with { "resolution-mode": "import" }
+export { b } from './a' assert { type: "json" }
+import './a' with { type: "json" }
+
+---
+
+(program
+  (export_statement
+    (export_clause)
+    (string
+      (string_fragment))
+    (import_attribute
+      (object)))
+  (export_statement
+    (export_clause
+      (export_specifier
+        (identifier)))
+    (string
+      (string_fragment))
+    (import_attribute
+      (object
+        (pair
+          (property_identifier)
+          (string
+            (string_fragment))))))
+  (export_statement
+    (string
+      (string_fragment))
+    (import_attribute
+      (object
+        (pair
+          (property_identifier)
+          (string
+            (string_fragment))))))
+  (export_statement
+    (namespace_export
+      (identifier))
+    (string
+      (string_fragment))
+    (import_attribute
+      (object
+        (pair
+          (property_identifier)
+          (string
+            (string_fragment))))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        (identifier)))
+    (string
+      (string_fragment))
+    (import_attribute
+      (object
+        (pair
+          (string
+            (string_fragment))
+          (string
+            (string_fragment))))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        (identifier)))
+    (string
+      (string_fragment))
+    (import_attribute
+      (object
+        (pair
+          (property_identifier)
+          (string
+            (string_fragment))))))
+  (import_statement
+    (string
+      (string_fragment))
+    (import_attribute
+      (object
+        (pair
+          (property_identifier)
+          (string
+            (string_fragment)))))))
