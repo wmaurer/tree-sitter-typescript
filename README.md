@@ -31,8 +31,9 @@ This branch of [wmaurer/tree-sitter-typescript](https://github.com/wmaurer/tree-
 | `accessor` with `static`, `override` and `abstract`, and `accessor` as a member name | [#381](https://github.com/tree-sitter/tree-sitter-typescript/pull/381). Issue [#369](https://github.com/tree-sitter/tree-sitter-typescript/issues/369). | `fix-accessor-modifier` |
 | Import attributes (`with` and `assert`) on `export ... from` | New fix, no upstream issue. | `fix-reexport-import-attributes` |
 | `export import x = require()` | New fix, no upstream issue. | `fix-export-import-require` |
+| `static` on index signatures | New fix, no upstream issue. | `fix-static-index-signature` |
 
-Each fix is checked with the harness in [`oracle/`](oracle/README.md), which compares the grammar with TypeScript 6.0.3's parser over TypeScript's own test suite (14,896 files). On that suite, upstream `master` rejects 237 files that TypeScript accepts, and this branch rejects 148. No fix made the grammar reject a file it accepted before.
+Each fix is checked with the harness in [`oracle/`](oracle/README.md), which compares the grammar with TypeScript 6.0.3's parser over TypeScript's own test suite (14,896 files). On that suite, upstream `master` rejects 237 files that TypeScript accepts, and this branch rejects 137. No fix made the grammar reject a file it accepted before.
 
 [tree-sitter]: https://github.com/tree-sitter/tree-sitter
 [flow]: https://flow.org/en/
