@@ -2020,6 +2020,10 @@
           "named": true
         },
         {
+          "type": "import_statement",
+          "named": true
+        },
+        {
           "type": "namespace_export",
           "named": true
         }

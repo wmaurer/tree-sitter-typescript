@@ -340,6 +340,7 @@ module.exports = function defineGrammar(dialect) {
           ),
           $._semicolon,
         ),
+        seq('export', alias($._import_require_statement, $.import_statement)),
         seq('export', '=', $.expression, $._semicolon),
         seq('export', 'as', 'namespace', $.identifier, $._semicolon),
       ),
@@ -517,6 +518,13 @@ module.exports = function defineGrammar(dialect) {
       class_heritage: $ => choice(
         seq($.extends_clause, optional($.implements_clause)),
         $.implements_clause,
+      ),
+
+      _import_require_statement: $ => seq(
+        'import',
+        optional('type'),
+        $.import_require_clause,
+        $._semicolon,
       ),
 
       import_require_clause: $ => seq(
