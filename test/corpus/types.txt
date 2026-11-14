@@ -863,6 +863,73 @@ export { type x as y };
         (identifier)))))
 
 =======================================
+Export type as a name
+=======================================
+
+export { type }
+export { type as t }
+export { t as type }
+export { type type }
+export type { type } from './Button'
+export { type } from './Button'
+export { type T }
+export { type as }
+export { type as as }
+export { type as as t }
+
+---
+
+(program
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier)
+        alias: (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier)
+        alias: (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier)))
+    source: (string
+      (string_fragment)))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier)))
+    source: (string
+      (string_fragment)))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier)
+        alias: (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier)
+        alias: (identifier)))))
+
+=======================================
 Flow Export Types
 =======================================
 
