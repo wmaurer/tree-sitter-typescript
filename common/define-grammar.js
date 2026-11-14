@@ -305,15 +305,16 @@ module.exports = function defineGrammar(dialect) {
         ),
       ),
 
+      _from_clause: ($, previous) => seq(previous, optional($.import_attribute)),
+
       import_statement: $ => seq(
         'import',
         optional(choice('type', 'typeof')),
         choice(
           seq($.import_clause, $._from_clause),
           $.import_require_clause,
-          field('source', $.string),
+          seq(field('source', $.string), optional($.import_attribute)),
         ),
-        optional($.import_attribute),
         $._semicolon,
       ),
 
