@@ -33,8 +33,13 @@ This branch of [wmaurer/tree-sitter-typescript](https://github.com/wmaurer/tree-
 | `export import x = require()` | New fix, no upstream issue. | `fix-export-import-require` |
 | `static` on index signatures | New fix, no upstream issue. | `fix-static-index-signature` |
 | `type` as an export name (`export { type }`) | New fix. Issue [#313](https://github.com/tree-sitter/tree-sitter-typescript/issues/313). | `fix-export-type-name` |
+| tree-sitter-javascript 0.25 and tree-sitter CLI 0.25 (ABI 15): `await` and `using` as identifiers, `using` declarations, simpler decorators | [#357](https://github.com/tree-sitter/tree-sitter-typescript/pull/357), plus a repair for keywords as names in qualified types, `typeof` queries, import and export names, JSX names and decorator members, and for `using` and `of` in `for` loops. Issue [#345](https://github.com/tree-sitter/tree-sitter-typescript/issues/345). | `fix-tree-sitter-0.25` |
 
-Each fix is checked with the harness in [`oracle/`](oracle/README.md), which compares the grammar with TypeScript 6.0.3's parser over TypeScript's own test suite (14,896 files). On that suite, upstream `master` rejects 237 files that TypeScript accepts, and this branch rejects 103. No fix made the grammar reject a file it accepted before.
+Each fix is checked with the harness in [`oracle/`](oracle/README.md), which compares the grammar with TypeScript 6.0.3's parser over TypeScript's own test suite (14,896 files). On that suite, upstream `master` rejects 237 files that TypeScript accepts, and this branch rejects 69. No fix made the grammar reject a file it accepted before.
+
+One trade-off is deliberate. Since the 0.25 upgrade, `await` reads as an identifier, which is valid TypeScript outside async code (`function f(await) {}`). As a result, `await` without an operand inside async code, which TypeScript rejects, also parses without an error. A grammar without async context cannot tell the two apart. [`oracle/known-accepts.json`](oracle/known-accepts.json) lists the 31 affected test files.
+
+The parsers use ABI 15 and need a tree-sitter 0.25 or later runtime. `tree-sitter generate --abi 14` builds parsers for older runtimes. They accept reserved words as names in a few more places, as upstream `master` does, and parse `a?.default`, which the ABI 15 parsers reject.
 
 [tree-sitter]: https://github.com/tree-sitter/tree-sitter
 [flow]: https://flow.org/en/
