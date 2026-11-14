@@ -1933,10 +1933,6 @@
         "required": false,
         "types": [
           {
-            "type": "default",
-            "named": false
-          },
-          {
             "type": "identifier",
             "named": true
           },
@@ -1950,10 +1946,6 @@
         "multiple": false,
         "required": true,
         "types": [
-          {
-            "type": "default",
-            "named": false
-          },
           {
             "type": "identifier",
             "named": true
@@ -2320,6 +2312,10 @@
           },
           {
             "type": "sequence_expression",
+            "named": true
+          },
+          {
+            "type": "using_declaration",
             "named": true
           },
           {
@@ -2895,10 +2891,6 @@
         "multiple": false,
         "required": true,
         "types": [
-          {
-            "type": "default",
-            "named": false
-          },
           {
             "type": "identifier",
             "named": true
@@ -3657,7 +3649,7 @@
     "fields": {},
     "children": {
       "multiple": false,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "identifier",
@@ -5869,11 +5861,11 @@
   },
   {
     "type": "number",
-    "named": false
+    "named": true
   },
   {
     "type": "number",
-    "named": true
+    "named": false
   },
   {
     "type": "object",
