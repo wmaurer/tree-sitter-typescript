@@ -595,6 +595,9 @@ export { type type }
 export type { type } from './Button'
 export { type } from './Button'
 export { type T }
+export { type as }
+export { type as as }
+export { type as as t }
 
 ---
 
@@ -632,7 +635,21 @@ export { type T }
   (export_statement
     (export_clause
       (export_specifier
-        name: (identifier)))))
+        name: (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier)
+        alias: (identifier))))
+  (export_statement
+    (export_clause
+      (export_specifier
+        name: (identifier)
+        alias: (identifier)))))
 
 =======================================
 Flow Export Types

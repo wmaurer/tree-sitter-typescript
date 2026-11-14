@@ -269,10 +269,14 @@ module.exports = function defineGrammar(dialect) {
         '/>',
       )),
 
-      export_specifier: (_, previous) => seq(
-        optional(choice('type', 'typeof')),
-        previous,
-      ),
+      export_specifier: $ => {
+        const name = choice($._module_export_name, alias('type', $.identifier), alias('as', $.identifier));
+        return seq(
+          optional(choice('type', 'typeof')),
+          field('name', name),
+          optional(seq('as', field('alias', name))),
+        );
+      },
 
       _import_identifier: $ => choice($.identifier, alias('type', $.identifier)),
 
