@@ -131,10 +131,19 @@ function readResults(path: string): Map<string, Result> {
   return results;
 }
 
+type KnownAccepts = { reason: string; units: string[] }[];
+
+function readKnownAccepts(): Map<string, string> {
+  const known = JSON.parse(readFileSync(join(import.meta.dirname, 'known-accepts.json'), 'utf8')) as KnownAccepts;
+  return new Map(known.flatMap(({ reason, units }) => units.map((id): [string, string] => [id, reason])));
+}
+
 function diff(args: string[]): void {
   if (args.length !== 2) fail(USAGE, 2);
   const [before, after] = args.map(readResults);
+  const knownAccepts = readKnownAccepts();
   const regressions: string[] = [];
+  const known: string[] = [];
   const fixes: string[] = [];
   const checkerOnly: string[] = [];
   const disagrees = (kind: VerdictKind) => kind === 'grammar-rejects' || kind === 'grammar-accepts';
@@ -142,7 +151,9 @@ function diff(args: string[]): void {
     const a = after.get(id);
     if (a === undefined) continue;
     const change = `${id} (${b.verdict.kind} -> ${a.verdict.kind})`;
-    if (!disagrees(b.verdict.kind) && disagrees(a.verdict.kind)) regressions.push(change);
+    if (!disagrees(b.verdict.kind) && disagrees(a.verdict.kind)) {
+      (a.verdict.kind === 'grammar-accepts' && knownAccepts.has(id) ? known : regressions).push(change);
+    }
     if (disagrees(b.verdict.kind) && !disagrees(a.verdict.kind)) fixes.push(change);
     // The checker only runs when tree-sitter rejects, so a unit that only the
     // checker rejects reads as agree-clean once tree-sitter accepts it.
@@ -150,11 +161,15 @@ function diff(args: string[]): void {
   }
   const onlyBefore = [...before.keys()].filter((id) => !after.has(id));
   const onlyAfter = [...after.keys()].filter((id) => !before.has(id));
+  const stale = [...knownAccepts.keys()].filter((id) => after.has(id) && after.get(id)!.verdict.kind !== 'grammar-accepts');
   const section = (title: string, ids: string[]) => {
     console.log(`${title}: ${ids.length}`);
     for (const id of ids) console.log(`  ${id}`);
   };
   section('regressions', regressions);
+  section('known grammar-accepts (known-accepts.json), not regressions', known);
+  for (const reason of new Set(known.map((change) => knownAccepts.get(change.split(' ')[0])!))) console.log(`  reason: ${reason}`);
+  section('stale known-accepts.json entries, no longer grammar-accepts', stale);
   section('fixes', fixes);
   section('now accepted, rejected only by the checker', checkerOnly);
   section(`only in ${args[0]}`, onlyBefore);

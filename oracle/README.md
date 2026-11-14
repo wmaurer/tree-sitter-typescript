@@ -57,4 +57,8 @@ node oracle/run.ts diff oracle/out/before/results.jsonl oracle/out/after/results
 
 `diff` lists regressions (units that became `grammar-rejects` or `grammar-accepts`), fixes (units that stopped being either), and units that are in only one file. It exits with 1 if there is a regression, and 0 otherwise.
 
+Some invalid code is accepted on purpose, because rejecting it would also reject valid code. `known-accepts.json` lists those units, each group with its reason. A listed unit that becomes `grammar-accepts` is printed with the reason and does not count as a regression. A listed unit that becomes `grammar-rejects` still does. Listed units that are no longer `grammar-accepts` are printed as stale, so they can be removed. Add a unit only when no grammar change can reject it without rejecting valid code, and say why in its group's reason.
+
+The current entry is `await` without an operand. The grammar reads `await` as an identifier, which is valid TypeScript outside async code (`function f(await) {}`). Inside async functions, async generators, class static blocks and module top level, TypeScript reads it as an operator and rejects it without an operand. A context-free grammar cannot tell those contexts apart without a second copy of every expression rule for async code.
+
 It also lists units that went from `agree-error` to `agree-clean`. TypeScript's parser accepts these, its checker rejects them with a syntax error, and tree-sitter now accepts them. They do not count as regressions, because the grammar builds a syntax tree and does not enforce checker rules such as decorator placement. Review them to make sure each one is a checker-only rule.
